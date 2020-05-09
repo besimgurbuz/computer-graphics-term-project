@@ -2,8 +2,11 @@
 #include "GL/freeglut.h"
 #include <iostream>
 #include "Plane.h";
+#include "Helicopter.h";
 
 Plane plane = Plane(5);
+
+Helicopter helicopters[4];
 
 
 void display() {
@@ -21,6 +24,11 @@ void display() {
 
 	// Draw plane 50 x 50
 	plane.draw();
+
+	// Draw random helicopters
+	for (int i = 0; i < 4; i++) {
+		helicopters[i].draw();
+	}
 
 	glFlush();
 	glutPostRedisplay();
@@ -56,10 +64,16 @@ int main(int argc, char** argv) {
 	glutCreateWindow("Computer Graphics Term Project - Besim Gurbuz");
 
 	glClearColor(1, 1, 1, 1);
-	gluOrtho2D(0.0, 480, 0.0, 640);
+	gluOrtho2D(0.0, 480, 0.0, 480);
 	glutSpecialFunc(keyEventsCallback);
 
 	glutDisplayFunc(display);
+
+	for (int i = 0; i < 4; i++) {
+		helicopters[i] = Helicopter(i);
+		helicopters[i].generateHelicopter();
+	}
+
 	glutMainLoop();
 
 	return 0;
