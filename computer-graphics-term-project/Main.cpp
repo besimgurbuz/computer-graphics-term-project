@@ -65,14 +65,14 @@ int main(int argc, char** argv) {
 
 	glClearColor(1, 1, 1, 1);
 	gluOrtho2D(0.0, 480, 0.0, 480);
-	glutSpecialFunc(keyEventsCallback);
-
-	glutDisplayFunc(display);
 
 	for (int i = 0; i < 4; i++) {
 		helicopters[i] = Helicopter(i);
 		helicopters[i].generateHelicopter();
 	}
+
+	glutSpecialFunc(keyEventsCallback);
+	glutDisplayFunc(display);
 
 	glutMainLoop();
 
