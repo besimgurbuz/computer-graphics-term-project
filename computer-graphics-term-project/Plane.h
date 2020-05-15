@@ -1,20 +1,29 @@
 #pragma once
-#include "glew.h"
+#include "GL/glew.h"
+#include <cstdlib>
+#include <iostream>
 
 class Plane
 {
 	public:
-		int x = 0, y = 0, velocity;
+		double x = 0, y = 0, velocity;
+		int score = 0, health = 3;
 
-		Plane(int velocity) {
+		Plane(double velocity) {
 			this->velocity = velocity;
 		}
 
-		void move(bool axis_x, bool axis_y, char direction) {
+		void randomizePosition() {
+			this->y = (rand() % 190) + 25;
+			this->x = (rand() % 430) + 25;
+			std::cout << "Planes position => x = " << this->x << " y = " << this->y << std::endl;
+		}
+
+		int move(bool axis_x, bool axis_y, char direction) {
 			if (axis_x && !axis_y) {
-				if (direction == 'r')
+				if (direction == 'r' && (int) this->x < 455)
 					this->x += this->velocity;
-				else if (direction == 'l')
+				else if (direction == 'l' && (int) this->x > 25)
 					this->x -= this->velocity;
 			}
 			else if (axis_y && !axis_x) {
@@ -22,7 +31,15 @@ class Plane
 					this->y += this->velocity;
 				else if (direction == 'd')
 					this->y -= this->velocity;
+				if ((int)this->y >= 480) {
+					score += 10;
+					std::cout << "SCORE:: " << this->score << std::endl;
+					this->randomizePosition();
+					return 1;
+				}
 			}
+
+			return 0;
 		}
 
 		void draw() {
@@ -31,14 +48,14 @@ class Plane
 
 			glBegin(GL_LINES);
 			// Plane Body
-			glVertex2f(240 + this->x, 145 + this->y);
-			glVertex2f(240 + this->x, 95 + this->y);
+			glVertex2f(this->x, this->y + 25);
+			glVertex2f(this->x, this->y - 25);
 			// Plane Wing
-			glVertex2f(215 + this->x, 130 + this->y);
-			glVertex2f(265 + this->x, 130 + this->y);
+			glVertex2f(this->x - 25, this->y + 15);
+			glVertex2f(this->x + 25, this->y + 15);
 			// Plane Tail
-			glVertex2f(227.5 + this->x, 105 + this->y);
-			glVertex2f(252.5 + this->x, 105 + this->y);
+			glVertex2f(this->x + 12.5, this->y - 15);
+			glVertex2f(this->x - 12.5, this->y - 15);
 			glEnd();
 		}
 };

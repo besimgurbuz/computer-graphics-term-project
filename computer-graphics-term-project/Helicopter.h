@@ -29,17 +29,16 @@ class Helicopter
 				this->speed = this->speed * -1;
 				this->x = 455;
 			}
-
- 			std::cout << "Speed: " << this->speed << std::endl << "Direction is " << directions[direction_index] << " index is " << direction_index;
-			std::cout << std::endl << (rand() / RAND_MAX);
 		}
 
 		void randomizeColor() {
 			for (int i = 0; i < 3; i++) {
 				this->color[i] = ((double)rand() / (RAND_MAX));
 			}
-			std::cout << "ORDER IS " << this->order << std::endl;
-			std::cout << this->color[0] << std::endl << this->color[1] << std::endl << this->color[2];
+		}
+
+		void increaseSpeed(int increaseDegree) {
+			this->speed += (((this->speed * increaseDegree) * 5) / 100);
 		}
 
 		void draw() {
