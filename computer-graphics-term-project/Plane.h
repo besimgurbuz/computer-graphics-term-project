@@ -32,13 +32,12 @@ class Plane
 				else if (direction == 'd')
 					this->y -= this->velocity;
 				if ((int)this->y >= 480) {
-					score += 10;
+					this->score += 10;
 					std::cout << "SCORE:: " << this->score << std::endl;
 					this->randomizePosition();
 					return 1;
 				}
 			}
-
 			return 0;
 		}
 
@@ -57,6 +56,12 @@ class Plane
 			glVertex2f(this->x + 12.5, this->y - 15);
 			glVertex2f(this->x - 12.5, this->y - 15);
 			glEnd();
+		}
+
+		void resetPlane() {
+			this->health = 3;
+			this->score = 0;
+			this->randomizePosition();
 		}
 };
 
