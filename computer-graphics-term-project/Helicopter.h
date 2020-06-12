@@ -66,10 +66,11 @@ class Helicopter
 				// Glass
 				glColor3f(0.6, 0.6, 0.7);
 				glBegin(GL_POLYGON);
-				glVertex2f(this->x + 10, 265 + (this->order * 50));
-				glVertex2f(this->x + 20, 265 + (this->order * 50));
+				glVertex2f(this->x + 20, 270 + (this->order * 50));
 				glVertex2f(this->x + 20, 255 + (this->order * 50));
-				glVertex2f(this->x + 10, 255 + (this->order * 50));
+				glVertex2f(this->x + 16, 258 + (this->order * 50));
+				glVertex2f(this->x + 12, 260 + (this->order * 50));
+				glVertex2f(this->x + 8, 270 + (this->order * 50));
 				glEnd();
 
 				glColor3f(this->color[0], this->color[1], this->color[2]);
@@ -90,8 +91,8 @@ class Helicopter
 				// Helicopter Tail
 				glLineWidth(4.0f);
 				glBegin(GL_LINES);
-				glVertex2f(this->x, 255 + (this->order * 50));
-				glVertex2f(this->x - 25, 255 + (this->order * 50));
+				glVertex2f(this->x, 260 + (this->order * 50));
+				glVertex2f(this->x - 25, 260 + (this->order * 50));
 				glEnd();
 
 				// Helicopter Propeller
@@ -111,10 +112,10 @@ class Helicopter
 
 				// Helicopter Tail Propeller
 				glBegin(GL_LINES);
-				glVertex2f(this->x - 20, 259 + (this->order * 50));
-				glVertex2f(this->x - 25, 251 + (this->order * 50));
-				glVertex2f(this->x - 20, 251 + (this->order * 50));
-				glVertex2f(this->x - 25, 259 + (this->order * 50));
+				glVertex2f(this->x - 20, 264 + (this->order * 50));
+				glVertex2f(this->x - 25, 256 + (this->order * 50));
+				glVertex2f(this->x - 20, 256 + (this->order * 50));
+				glVertex2f(this->x - 25, 264 + (this->order * 50));
 				glEnd();
 
 				this->x += this->speed;
@@ -132,11 +133,12 @@ class Helicopter
 
 				// Glass
 				glColor3f(0.6, 0.6, 0.7);
-				glBegin(GL_QUADS);
-				glVertex2f(this->x - 10, 265 + (this->order * 50));
-				glVertex2f(this->x - 10, 255 + (this->order * 50));
+				glBegin(GL_POLYGON);
+				glVertex2f(this->x - 20, 270 + (this->order * 50));
 				glVertex2f(this->x - 20, 255 + (this->order * 50));
-				glVertex2f(this->x - 20, 265 + (this->order * 50));
+				glVertex2f(this->x - 16, 258 + (this->order * 50));
+				glVertex2f(this->x - 12, 260 + (this->order * 50));
+				glVertex2f(this->x - 8, 270 + (this->order * 50));
 				glEnd();
 
 				glColor3f(this->color[0], this->color[1], this->color[2]);
@@ -157,8 +159,8 @@ class Helicopter
 				// Helicopter Tail
 				glLineWidth(4.0f);
 				glBegin(GL_LINES);
-				glVertex2f(this->x, 255 + (this->order * 50));
-				glVertex2f(this->x + 25, 255 + (this->order * 50));
+				glVertex2f(this->x, 260 + (this->order * 50));
+				glVertex2f(this->x + 25, 260 + (this->order * 50));
 				glEnd();
 
 				// Helicopter Propeller
@@ -178,10 +180,10 @@ class Helicopter
 
 				// Helicopter Tail Propeller
 				glBegin(GL_LINES);
-				glVertex2f(this->x + 20, 259 + (this->order * 50));
-				glVertex2f(this->x + 25, 251 + (this->order * 50));
-				glVertex2f(this->x + 20, 251 + (this->order * 50));
-				glVertex2f(this->x + 25, 259 + (this->order * 50));
+				glVertex2f(this->x + 20, 264 + (this->order * 50));
+				glVertex2f(this->x + 25, 256 + (this->order * 50));
+				glVertex2f(this->x + 20, 256 + (this->order * 50));
+				glVertex2f(this->x + 25, 264 + (this->order * 50));
 				glEnd();
 
 				this->x += this->speed;

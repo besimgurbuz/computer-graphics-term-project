@@ -1,10 +1,11 @@
 #include "GL/glew.h"
 #include "GL/freeglut.h"
 #include <iostream>
-#include "Plane.h"
-#include "Helicopter.h"
 #include <string>
 #include <math.h>
+#include <fstream>
+#include "Plane.h"
+#include "Helicopter.h"
 
 Plane plane = Plane(5);
 Helicopter helicopters[4];
@@ -12,6 +13,8 @@ int isScored;
 int menuStatus = 0;
 int menuItemHover = 1;
 bool gameStarted = false;
+std::string username;
+bool alertAboutUsername = false;
 
 void displayMenu() {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -19,7 +22,7 @@ void displayMenu() {
 	std::string str = gameStarted ? "Menu" : "Welcome to The Plane Game!";
 	std::string& string = str;
 	glColor3f(1, 0, 0);
-	glRasterPos2d(gameStarted ? 225 : 150, 330);
+	glRasterPos2d(gameStarted ? 215 : 130, 330);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 	glColor3f(0, 0, 0);
@@ -32,57 +35,55 @@ void displayMenu() {
 
 	// Menu Usage
 	str = "use UP and DOWN keys";
-	glRasterPos2d(345, 20);
+	glRasterPos2d(300, 20);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
 	str = "press ENTER for choose";
-	glRasterPos2d(345, 5);
+	glRasterPos2d(300, 5);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
 
 	// Play Button
 	glColor3f(menuItemHover == 1 ? 0 : 1, menuItemHover == 1 ? 0 : 1, 1);
 	glBegin(GL_QUADS);
-	glVertex2i(200, 290);
-	glVertex2i(200, 250);
-	glVertex2i(280, 250);
-	glVertex2i(280, 290);
+	glVertex2i(gameStarted ? 190 : 200, 290);
+	glVertex2i(gameStarted ? 190 : 200, 250);
+	glVertex2i(gameStarted ? 290 : 280, 250);
+	glVertex2i(gameStarted ? 290 : 280, 290);
 	glEnd();
 	str = gameStarted ? "Continue" : "Play";
 	glColor3f(0, 0, 0);
-	glRasterPos2d(gameStarted ? 212 : 228, 260);
+	glRasterPos2d(gameStarted ? 202 : 223, 265);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 
 	// Settings Button
 	glColor3f(menuItemHover == 2 ? 0 : 1, menuItemHover == 2 ? 0 : 1, 1);
 	glBegin(GL_QUADS);
-	glVertex2i(200, 240);
-	glVertex2i(200, 200);
-	glVertex2i(280, 200);
-	glVertex2i(280, 240);
+	glVertex2i(190, 240);
+	glVertex2i(190, 200);
+	glVertex2i(290, 200);
+	glVertex2i(290, 240);
 	glEnd();
 	str = "Settings";
 	glColor3f(0, 0, 0);
-	glRasterPos2d(215, 210);
+	glRasterPos2d(205, 215);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 
 	// Leaderboard Button
 	glColor3f(menuItemHover == 3 ? 0 : 1, menuItemHover == 3 ? 0 : 1, 1);
 	glBegin(GL_QUADS);
-	glVertex2i(195, 190);
-	glVertex2i(195, 150);
-	glVertex2i(285, 150);
-	glVertex2i(285, 190);
+	glVertex2i(180, 190);
+	glVertex2i(180, 150);
+	glVertex2i(300, 150);
+	glVertex2i(300, 190);
 	glEnd();
 	str = "Leaderboard";
 	glColor3f(0, 0, 0);
-	glRasterPos2d(202, 160);
+	glRasterPos2d(188, 165);
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
-
-
 
 	glFlush();
 	glutPostRedisplay();
@@ -104,15 +105,28 @@ bool checkCrash() {
 	return false;
 }
 
+void updateLeaderboard() {
+	std::string survey_fname;
+	std::string dir(__FILE__);
+	dir = dir.substr(0, dir.find_last_of("\\/"));
+	std::cout << "CWD -> " << dir << std::endl;
+	if (plane.score != 0) {
+		std::fstream leaderboardFile("./leaderboard.txt");
+
+		if (leaderboardFile.peek() == std::ifstream::traits_type::eof()) {
+			// file is empty
+			leaderboardFile << "1 " + username + " " + std::to_string(plane.score) + "\n";
+		}
+
+		leaderboardFile.close();
+	}
+}
+
 void displayGame() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	bool crashResult = checkCrash();
-	std::string str = "press ESC for menu";
+	std::string str = "";
 	std::string& string = str;
-	glColor3f(0, 0, 0);
-	glRasterPos2d(368, 5);
-	for (int n = 0; n < string.size(); n++)
-		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
 	if (crashResult) {
 		// game over text
 		str = "Game Over!";
@@ -121,14 +135,15 @@ void displayGame() {
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 		glColor3f(0, 0, 0);
-		str = "your score: " + std::to_string(plane.score);
-		glRasterPos2d(195, 220);
+		str = username + "'s score: " + std::to_string(plane.score);
+		glRasterPos2d(187, 220);
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 		str = "press enter to play again";
 		glRasterPos2d(180, 10);
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[n]);
+
 		glFlush();
 		glutPostRedisplay();
 		glutSwapBuffers();
@@ -144,16 +159,28 @@ void displayGame() {
 			helicopters[i].draw();
 		}
 
+		// Username text
+		glColor3f(1, 0, 1);
+		glRasterPos2d(5, 470);
+		for (int n = 0; n < username.size(); n++)
+			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, username[n]);
+
 		// Status text
 		str = "Score: " + std::to_string(plane.score);
 		glColor3f(0, 0, 1);
-		glRasterPos2d(410, 450);
+		glRasterPos2d(380, 470);
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[n]);
 		str = "Health: " + std::to_string(plane.health);
-		glRasterPos2d(410, 430);
+		glRasterPos2d(380, 450);
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[n]);
+
+		str = "press ESC for menu";
+		glColor3f(0, 0, 0);
+		glRasterPos2d(330, 5);
+		for (int n = 0; n < string.size(); n++)
+			glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
 
 		glFlush();
 		glutPostRedisplay();
@@ -169,6 +196,33 @@ void displayLeaderboard() {
 
 }
 
+void displayGetUsername() {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	std::string str = "Type your username:";
+	std::string& string = str;
+	glColor3f(1, 0, 0);
+	glRasterPos2d(150, 240);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+	str = username.size() != 0 ? username : "________";
+	glColor3f(0, 0, 0);
+	glRasterPos2d(205, 215);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+
+	glColor3f(1, 0, 0);
+	str = alertAboutUsername ? "username cannot be empty" : "username can contain up to 8 characters";
+	glRasterPos2d(alertAboutUsername ? 170 : 120, 10);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[n]);
+
+	glFlush();
+	glutPostRedisplay();
+	glutSwapBuffers();
+}
+
 void mainDisplayer() {
 	switch (menuStatus) {
 		case 0:
@@ -182,6 +236,10 @@ void mainDisplayer() {
 			break;
 		case 3:
 			displayLeaderboard();
+			break;
+		case 10:
+			// Get username
+			displayGetUsername();
 			break;
 	}
 }
@@ -240,9 +298,14 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 	if (menuStatus == 0) {
 		switch (key_val) {
 			case 13:
-				menuStatus = menuItemHover;
-				if (menuStatus == 1)
-					gameStarted = true;
+				if (menuItemHover == 1 && !gameStarted) {
+					menuStatus = 10;
+				}
+				else {
+					menuStatus = menuItemHover;
+					if (menuStatus == 1)
+						gameStarted = true;
+				}
 				break;
 		}
 
@@ -264,6 +327,31 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 				break;
 		}
 	}
+	else if (menuStatus == 10) {
+		// username defining
+		switch (key_val) {
+			case 8:
+				if (username.size() > 0)
+					username.pop_back();
+				std::cout << "USERNAME -> " << username << std::endl;
+				break;
+			case 13:
+				if (username.size() > 0) {
+					menuStatus = 1;
+					gameStarted = true;
+				}
+				else {
+					alertAboutUsername = true;
+				}
+				break;
+			default:
+				alertAboutUsername = false;
+				if (username.size() < 8)
+					username += key;
+				std::cout << "USERNAME -> " << username << std::endl;
+				break;
+		}
+	}
 	std::cout << "Key: " << key_val << std::endl;
 }
 
@@ -271,7 +359,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(500, 200);
-	glutInitWindowSize(640, 480);
+	glutInitWindowSize(480, 640);
 	glutCreateWindow("Computer Graphics Term Project");
 
 	glClearColor(1, 1, 1, 1);
