@@ -9,7 +9,7 @@
 #include "Plane.h"
 #include "Helicopter.h"
 
-Plane plane = Plane(5);
+Plane plane = Plane();
 Helicopter helicopters[4];
 int isScored;
 int menuStatus = 0;
@@ -17,6 +17,25 @@ int menuItemHover = 1;
 bool gameStarted = false;
 std::string username;
 bool alertAboutUsername = false;
+
+int settingsMenuItemHover = 1;
+int selected_plane_color_index = 2;
+int difficulty_index = 0.02;
+// Color palette
+int colors[5][3] = {
+	{1, 0, 0},
+	{0, 1, 0},
+	{0, 0, 1},
+	{1, 1, 0},
+	{0, 1, 1}
+};
+
+int selected_difficulty_index = 1;
+std::string difficulties[3] = {
+	"Easy",
+	"Normal",
+	"Hard"
+};
 
 struct LBRecord {
 	int rank;
@@ -169,10 +188,6 @@ std::list<LBRecord> getLBRecords() {
 
 void updateLeaderboard() {
 	using namespace std;
-	string survey_fname;
-	string dir(__FILE__);
-	dir = dir.substr(0, dir.find_last_of("\\/"));
-	cout << "CWD -> " << dir << endl;
 	if (plane.score > 0) {
 		ifstream readLeaderboardFile;
 		ofstream writeLeaderboardFile;
@@ -273,7 +288,73 @@ void displayGame() {
 }
 
 void displaySettings() {
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	std::string str;
+	std::string& string = str;
+
+	// Title
+	str = "Settings";
+	glColor3f(1, 0, 0);
+	glRasterPos2d(215, 330);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+
+	// Plane Color
+	glColor3f(0, 0, 0);
+	glLineWidth(2.0f);
+	str = "Plane's color: ";
+	glRasterPos2d(150, 280);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+	glColor3f(colors[selected_plane_color_index][0], colors[selected_plane_color_index][1], colors[selected_plane_color_index][2]);
+	glBegin(GL_QUADS);
+	glVertex2f(280, 295);
+	glVertex2f(330, 295);
+	glVertex2f(330, 275);
+	glVertex2f(280, 275);
+	glEnd();
+	
+	glColor3f(1, settingsMenuItemHover == 1 ? 0 : 1, settingsMenuItemHover == 1 ? 0 : 1);
+	glBegin(GL_LINES);
+	glVertex2f(150, 270);
+	glVertex2f(330, 270);
+	glEnd();
+
+	// Difficulty
+	glColor3f(0, 0, 0);
+	str = "Difficulty : \t" + difficulties[selected_difficulty_index];
+	glRasterPos2d(160, 240);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+	glColor3f(1, settingsMenuItemHover == 2 ? 0 : 1, settingsMenuItemHover == 2 ? 0 : 1);
+	glBegin(GL_LINES);
+	glVertex2f(160, 230);
+	glVertex2f(310, 230);
+	glEnd();
+
+	glColor3f(0, 0, 0);
+	str = "Press ESC to return";
+	glRasterPos2d(200, 30);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[n]);
+
+	// Settings Usage
+	str = "use UP and DOWN keys";
+	glRasterPos2d(170, 20);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
+	str = "press ENTER to change setting";
+	glRasterPos2d(150, 10);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, string[n]);
+
+	glFlush();
+	glutPostRedisplay();
+	glutSwapBuffers();
 }
 
 void displayLeaderboard() {
@@ -294,10 +375,15 @@ void displayLeaderboard() {
 	for (int n = 0; n < string.size(); n++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 
-	glColor3f(0, 0, 1);
+	str = "#rank\t\t\tusername\t\t\tscore";
+	glRasterPos2d(145, 300);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+	glColor3f(0, 0, 0);
 	for (it = records.begin(); it != records.end(); ++it) {
-		str = std::to_string(recordindex + 1) + ".  " + it->username + " " + std::to_string(it->score);
-		glRasterPos2d(180, 280 - (recordindex) * 20);
+		str = "#" + std::to_string(recordindex + 1) + "\t\t\t\t\t" + it->username + "\t\t\t\t\t" + std::to_string(it->score);
+		glRasterPos2d(175, 270 - (recordindex) * 20);
 		for (int n = 0; n < string.size(); n++)
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
 		recordindex++;
@@ -376,7 +462,7 @@ void gamePlayKeyEventsCallback(int key, int x, int y) {
 					menuItemHover++;
 				}
 		}
-	} 
+	}
 	else if (menuStatus == 1 && plane.health > 0) {
 		switch (key) {
 			case GLUT_KEY_UP:
@@ -409,6 +495,20 @@ void gamePlayKeyEventsCallback(int key, int x, int y) {
 			}
 		}
 	}
+	else if (menuStatus == 2) {
+		switch (key) {
+		case GLUT_KEY_UP:
+			if (settingsMenuItemHover > 1) {
+				settingsMenuItemHover--;
+			}
+			break;
+		case GLUT_KEY_DOWN:
+			if (settingsMenuItemHover < 2) {
+				settingsMenuItemHover++;
+			}
+		}
+	}
+
 }
 
 void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
@@ -446,7 +546,36 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 				break;
 		}
 	}
-	else if (menuStatus == 3 || menuStatus == 2) {
+	else if (menuStatus == 2) {
+		switch (key_val) {
+			case 13:
+				if (settingsMenuItemHover == 1) {
+					// change color
+					if (selected_plane_color_index == 4) {
+						selected_plane_color_index = 0;
+					}
+					else if (selected_plane_color_index >= 0) {
+						selected_plane_color_index++;
+					}
+					plane.setColor(colors[selected_plane_color_index][0], colors[selected_plane_color_index][1], colors[selected_plane_color_index][2]);
+				}
+				else if (settingsMenuItemHover == 2) {
+					if (selected_difficulty_index == 2) {
+						selected_difficulty_index = 0;
+					}
+					else if (selected_difficulty_index >= 0) {
+						selected_difficulty_index++;
+					}
+					for (int i = 0; i < 4; i++)
+						helicopters[i].setSpeedIncreaseIndex(selected_difficulty_index);
+				}
+				break;
+			case 27:
+				menuStatus = 0;
+				break;
+		}
+	}
+	else if (menuStatus == 3) {
 		// Leaderboard or Settings page
 		switch (key_val) {
 			case 27:
@@ -461,7 +590,6 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 			case 8:
 				if (username.size() > 0)
 					username.pop_back();
-				std::cout << "USERNAME -> " << username << std::endl;
 				break;
 			case 13:
 				if (username.size() > 0 && username.find_first_not_of(' ') != std::string::npos) {
@@ -472,11 +600,13 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 					alertAboutUsername = true;
 				}
 				break;
+			case 27:
+				menuStatus = 0;
+				break;
 			default:
 				alertAboutUsername = false;
 				if (username.size() < 8)
 					username += key;
-				std::cout << "USERNAME -> " << username << std::endl;
 				break;
 		}
 	}
@@ -488,7 +618,7 @@ int main(int argc, char** argv) {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(500, 200);
 	glutInitWindowSize(480, 640);
-	glutCreateWindow("Computer Graphics Term Project");
+	glutCreateWindow("Computer Graphics Term Project - Besim Gürbüz");
 
 	glClearColor(1, 1, 1, 1);
 	gluOrtho2D(0.0, 480, 0.0, 480);

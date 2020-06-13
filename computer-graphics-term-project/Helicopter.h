@@ -5,6 +5,8 @@
 
 class Helicopter
 {
+	private:
+		float increase_index = 0.06;
 	public:
 		int order;
 		double x = 25, speed = 0.1;
@@ -20,7 +22,7 @@ class Helicopter
 
 		void generateHelicopter() {
 			this->randomizeColor();
-			this->speed = ((rand() % 2) + 1) * 0.05;
+			this->speed = ((rand() % 2) + 1) * (0.05);
 			
 			char directions[2] = { 'r', 'l' };
 			int direction_index = (rand() % 2);
@@ -38,8 +40,21 @@ class Helicopter
 			}
 		}
 
-		void increaseSpeed(int increaseDegree) {
-			this->speed += (((this->speed * increaseDegree) * 5) / 100);
+		void setSpeedIncreaseIndex(int difficulty_index) {
+			// 0 easy 1 normal 2 hard
+			switch (difficulty_index) {
+				case 0:
+					this->increase_index /= 2;
+					break;
+				case 2:
+					this->increase_index *= 2;
+					break;
+			}
+		}
+
+		void increaseSpeed(float level) {
+			this->speed += (level * 0.1 * (this->direction == 'r' ? 1 : -1)) * this->increase_index;
+			std::cout << "Helicopter speeds increased : " << (level * 0.1 * (this->direction == 'r' ? 1 : -1)) * this->increase_index << std::endl;
 		}
 
 		void draw() {

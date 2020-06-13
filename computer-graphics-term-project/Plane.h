@@ -6,12 +6,11 @@
 class Plane
 {
 	public:
-		double x = 0, y = 0, velocity;
+		double x = 0, y = 0, velocity = 5;
 		int score = 0, health = 3;
+		int color[3] = { 0, 0, 1 };
 
-		Plane(double velocity) {
-			this->velocity = velocity;
-		}
+		Plane() {}
 
 		void randomizePosition() {
 			this->y = (rand() % 190) + 25;
@@ -41,8 +40,14 @@ class Plane
 			return 0;
 		}
 
+		void setColor(int r, int g, int b) {
+			this->color[0] = r;
+			this->color[1] = g;
+			this->color[2] = b;
+		}
+
 		void draw() {
-			glColor3f(0, 0, 1);
+			glColor3f(color[0], color[1], color[2]);
 			glLineWidth(5.0f);
 
 			glBegin(GL_LINES);
