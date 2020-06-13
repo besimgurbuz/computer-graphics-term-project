@@ -4,6 +4,8 @@
 #include <string>
 #include <math.h>
 #include <fstream>
+#include <sstream>
+#include <list>
 #include "Plane.h"
 #include "Helicopter.h"
 
@@ -15,6 +17,29 @@ int menuItemHover = 1;
 bool gameStarted = false;
 std::string username;
 bool alertAboutUsername = false;
+
+struct LBRecord {
+	int rank;
+	std::string username;
+	int score;
+
+	LBRecord() {}
+
+	LBRecord(std::string username, int score) {
+		this->username = username;
+		this->score = score;
+	}
+
+	LBRecord(int rank, std::string username, int score) {
+		this->rank = rank;
+		this->username = username;
+		this->score = score;
+	}
+
+	bool operator <(const LBRecord &other) const {
+		return score > other.score;
+	}
+};
 
 void displayMenu() {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -105,20 +130,79 @@ bool checkCrash() {
 	return false;
 }
 
-void updateLeaderboard() {
-	std::string survey_fname;
-	std::string dir(__FILE__);
-	dir = dir.substr(0, dir.find_last_of("\\/"));
-	std::cout << "CWD -> " << dir << std::endl;
-	if (plane.score != 0) {
-		std::fstream leaderboardFile("./leaderboard.txt");
+std::list<LBRecord> getLBRecords() {
+	using namespace std;
 
-		if (leaderboardFile.peek() == std::ifstream::traits_type::eof()) {
+	list<LBRecord> records;
+	string line;
+	ifstream readLeaderboardFile;
+	readLeaderboardFile.open("./leaderboard.txt");
+
+
+	while (getline(readLeaderboardFile, line)) {
+		int rank;
+		string username;
+		int score;
+		int recordindex = 0;
+
+		string word;
+		istringstream iss(line, istringstream::in);
+		int wordindex = 0;
+
+		while (iss >> word) {
+			// int_rank string_username int_score
+			if (wordindex == 0) {
+				rank = stoi(word);
+			}
+			if (wordindex == 1) {
+				username = word;
+			}
+			if (wordindex == 2) {
+				score = stoi(word);
+			}
+			wordindex++;
+		}
+		records.push_back(LBRecord(rank, username, score));
+	}
+	return records;
+}
+
+void updateLeaderboard() {
+	using namespace std;
+	string survey_fname;
+	string dir(__FILE__);
+	dir = dir.substr(0, dir.find_last_of("\\/"));
+	cout << "CWD -> " << dir << endl;
+	if (plane.score > 0) {
+		ifstream readLeaderboardFile;
+		ofstream writeLeaderboardFile;
+
+		readLeaderboardFile.open("./leaderboard.txt");
+		if (readLeaderboardFile.peek() == ifstream::traits_type::eof()) {
 			// file is empty
-			leaderboardFile << "1 " + username + " " + std::to_string(plane.score) + "\n";
+			writeLeaderboardFile.open("./leaderboard.txt");
+			writeLeaderboardFile << "1 " + username + " " + to_string(plane.score);
+		}
+		else {
+			list<LBRecord> records = getLBRecords();
+			records.push_back(LBRecord(username, plane.score));
+			records.sort();
+			if (records.size() > 10) {
+				records.pop_back();
+			}
+			list<LBRecord>::iterator it;
+			int rankindex = 1;
+			writeLeaderboardFile.open("./leaderboard.txt");
+			for (it = records.begin(); it != records.end(); ++it) {
+				writeLeaderboardFile << to_string(rankindex) << " " << it->username << " " << it->score << endl;
+				cout << "Username -> " << it->username << " Score -> " << it->score << endl;
+				rankindex++;
+			}
+			writeLeaderboardFile.close();
 		}
 
-		leaderboardFile.close();
+		readLeaderboardFile.close();
+		writeLeaderboardFile.close();
 	}
 }
 
@@ -193,7 +277,41 @@ void displaySettings() {
 }
 
 void displayLeaderboard() {
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	std::list<LBRecord> records = getLBRecords();
+
+	std::list<LBRecord>::iterator it;
+	int recordindex = 0;
+
+	std::string str;
+	std::string& string = str;
+
+	// Title
+	str = "Leaderboard";
+	glColor3f(1, 0, 0);
+	glRasterPos2d(190, 330);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+
+	glColor3f(0, 0, 1);
+	for (it = records.begin(); it != records.end(); ++it) {
+		str = std::to_string(recordindex + 1) + ".  " + it->username + " " + std::to_string(it->score);
+		glRasterPos2d(180, 280 - (recordindex) * 20);
+		for (int n = 0; n < string.size(); n++)
+			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, string[n]);
+		recordindex++;
+	}
+
+	glColor3f(1, 0, 0);
+	str = "Press ESC to return";
+	glRasterPos2d(200, 10);
+	for (int n = 0; n < string.size(); n++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[n]);
+
+	glFlush();
+	glutPostRedisplay();
+	glutSwapBuffers();
 }
 
 void displayGetUsername() {
@@ -315,12 +433,22 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 			case 13:
 				// Enter Key
 				if (plane.health == 0) {
+					updateLeaderboard();
 					for (int i = 0; i < 4; i++) {
 						helicopters[i].generateHelicopter();
 					}
 					plane.resetPlane();
 				}
 				break;
+			case 27:
+				// Esc Key
+				menuStatus = 0;
+				break;
+		}
+	}
+	else if (menuStatus == 3 || menuStatus == 2) {
+		// Leaderboard or Settings page
+		switch (key_val) {
 			case 27:
 				// Esc Key
 				menuStatus = 0;
@@ -336,7 +464,7 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 				std::cout << "USERNAME -> " << username << std::endl;
 				break;
 			case 13:
-				if (username.size() > 0) {
+				if (username.size() > 0 && username.find_first_not_of(' ') != std::string::npos) {
 					menuStatus = 1;
 					gameStarted = true;
 				}
