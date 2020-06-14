@@ -24,7 +24,6 @@ class Helicopter
 			this->randomizeColor();
 			this->speed = ((rand() % 4) + 3) * 0.02;
 			this->proppler_rotation = 0;
-			std::cout << "Speed -> " << this->speed << std::endl;
 			
 			char directions[2] = { 'r', 'l' };
 			int direction_index = (rand() % 2);

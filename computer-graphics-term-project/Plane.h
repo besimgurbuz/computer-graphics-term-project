@@ -15,7 +15,6 @@ class Plane
 		void randomizePosition() {
 			this->y = (rand() % 190) + 25;
 			this->x = (rand() % 430) + 25;
-			std::cout << "Planes position => x = " << this->x << " y = " << this->y << std::endl;
 		}
 
 		int move(bool axis_x, bool axis_y, char direction) {
@@ -32,7 +31,6 @@ class Plane
 					this->y -= this->velocity;
 				if ((int)this->y >= 480) {
 					this->score += 10;
-					std::cout << "SCORE:: " << this->score << std::endl;
 					this->randomizePosition();
 					return 1;
 				}
