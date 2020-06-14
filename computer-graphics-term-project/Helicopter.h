@@ -6,13 +6,13 @@
 class Helicopter
 {
 	private:
-		float increase_index = 0.06;
+		float increase_index = 0.04;
 	public:
 		int order;
 		double x = 25, speed = 0.1;
 		char direction;
 		float color[3];
-		float proppler_rotation = 0;
+		int proppler_rotation = 0;
 
 		Helicopter() {}
 
@@ -22,7 +22,9 @@ class Helicopter
 
 		void generateHelicopter() {
 			this->randomizeColor();
-			this->speed = ((rand() % 2) + 1) * (0.05);
+			this->speed = ((rand() % 4) + 3) * 0.02;
+			this->proppler_rotation = 0;
+			std::cout << "Speed -> " << this->speed << std::endl;
 			
 			char directions[2] = { 'r', 'l' };
 			int direction_index = (rand() % 2);
@@ -54,7 +56,6 @@ class Helicopter
 
 		void increaseSpeed(float level) {
 			this->speed += (level * 0.1 * (this->direction == 'r' ? 1 : -1)) * this->increase_index;
-			std::cout << "Helicopter speeds increased : " << (level * 0.1 * (this->direction == 'r' ? 1 : -1)) * this->increase_index << std::endl;
 		}
 
 		void draw() {
@@ -119,22 +120,39 @@ class Helicopter
 				
 				glColor3f(0, 0, 0);
 				glBegin(GL_LINES);
-				glVertex2f(this->x + 25, 269 + (this->order * 50));
-				glVertex2f(this->x - 5, 281 + (this->order * 50));
-				glVertex2f(this->x + 25, 281 + (this->order * 50));
-				glVertex2f(this->x - 5, 269 + +(this->order * 50));
+				if (this->proppler_rotation % 3 == 0) {
+					glVertex2f(this->x + 23, 269 + (this->order * 50));
+					glVertex2f(this->x - 3, 281 + (this->order * 50));
+					glVertex2f(this->x + 23, 281 + (this->order * 50));
+					glVertex2f(this->x - 3, 269 + +(this->order * 50));
+					glEnd();
+				}
+				else if (this->proppler_rotation % 3 == 1) {
+					glVertex2f(this->x + 25, 275 + (this->order * 50));
+					glVertex2f(this->x - 5, 275 + (this->order * 50));
+					glVertex2f(this->x + 25, 269 + (this->order * 50));
+					glVertex2f(this->x - 5, 281 + (this->order * 50));
+				}
 				glEnd();
 
-				// Helicopter Tail Propeller
+				// Helicopter Tail 
 				glBegin(GL_LINES);
-				glVertex2f(this->x - 20, 264 + (this->order * 50));
-				glVertex2f(this->x - 25, 256 + (this->order * 50));
-				glVertex2f(this->x - 20, 256 + (this->order * 50));
-				glVertex2f(this->x - 25, 264 + (this->order * 50));
+				if (this->proppler_rotation % 3 == 0) {
+					glVertex2f(this->x - 20, 264 + (this->order * 50));
+					glVertex2f(this->x - 25, 256 + (this->order * 50));
+					glVertex2f(this->x - 20, 256 + (this->order * 50));
+					glVertex2f(this->x - 25, 264 + (this->order * 50));
+				}
+				else if (this->proppler_rotation % 3 == 2) {
+					glVertex2f(this->x - 22.5, 265 + (this->order * 50));
+					glVertex2f(this->x - 22.5, 255 + (this->order * 50));
+					glVertex2f(this->x - 19, 261.5 + (this->order * 50));
+					glVertex2f(this->x - 26, 261.5 + (this->order * 50));
+				}
 				glEnd();
 
 				this->x += this->speed;
-				this->proppler_rotation += 0.3f;
+				this->proppler_rotation += 1;
 			}
 			else {
 				// Body
@@ -187,21 +205,38 @@ class Helicopter
 
 				glColor3f(0, 0, 0);
 				glBegin(GL_LINES);
-				glVertex2f(this->x + 5, 269 + (this->order * 50));
-				glVertex2f(this->x - 25, 281 + (this->order * 50));
-				glVertex2f(this->x + 5, 281 + (this->order * 50));
-				glVertex2f(this->x - 25, 269 + +(this->order * 50));
+				if (this->proppler_rotation % 3 == 0) {
+					glVertex2f(this->x + 5, 269 + (this->order * 50));
+					glVertex2f(this->x - 25, 281 + (this->order * 50));
+					glVertex2f(this->x + 5, 281 + (this->order * 50));
+					glVertex2f(this->x - 25, 269 + +(this->order * 50));
+				}
+				else if (this->proppler_rotation % 3 == 1) {
+					glVertex2f(this->x + 5, 275 + (this->order * 50));
+					glVertex2f(this->x - 25, 275 + (this->order * 50));
+					glVertex2f(this->x + 5, 269 + (this->order * 50));
+					glVertex2f(this->x - 25, 281 + (this->order * 50));
+				}
 				glEnd();
 
 				// Helicopter Tail Propeller
 				glBegin(GL_LINES);
-				glVertex2f(this->x + 20, 264 + (this->order * 50));
-				glVertex2f(this->x + 25, 256 + (this->order * 50));
-				glVertex2f(this->x + 20, 256 + (this->order * 50));
-				glVertex2f(this->x + 25, 264 + (this->order * 50));
+				if (this->proppler_rotation % 3 == 0) {
+					glVertex2f(this->x + 20, 264 + (this->order * 50));
+					glVertex2f(this->x + 25, 256 + (this->order * 50));
+					glVertex2f(this->x + 20, 256 + (this->order * 50));
+					glVertex2f(this->x + 25, 264 + (this->order * 50));
+				}
+				else if (this->proppler_rotation % 3 == 2) {
+					glVertex2f(this->x +  22.5, 265 + (this->order * 50));
+					glVertex2f(this->x + 22.5, 255 + (this->order * 50));
+					glVertex2f(this->x + 19, 261.5 + (this->order * 50));
+					glVertex2f(this->x + 26, 261.5 + (this->order * 50));
+				}
 				glEnd();
 
 				this->x += this->speed;
+				this->proppler_rotation += 1;
 			}
 		}
 };
