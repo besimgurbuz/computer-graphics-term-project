@@ -610,7 +610,6 @@ void gameControlKeyEventsCallback(unsigned char key, int x, int y) {
 				break;
 		}
 	}
-	std::cout << "Key: " << key_val << std::endl;
 }
 
 int main(int argc, char** argv) {
