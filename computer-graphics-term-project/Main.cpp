@@ -210,7 +210,6 @@ void updateLeaderboard() {
 			writeLeaderboardFile.open("./leaderboard.txt");
 			for (it = records.begin(); it != records.end(); ++it) {
 				writeLeaderboardFile << to_string(rankindex) << " " << it->username << " " << it->score << endl;
-				cout << "Username -> " << it->username << " Score -> " << it->score << endl;
 				rankindex++;
 			}
 			writeLeaderboardFile.close();
@@ -450,7 +449,6 @@ void mainDisplayer() {
 
 void gamePlayKeyEventsCallback(int key, int x, int y) {
 	if (menuStatus == 0) {
-		std::cout << "Key:: " << key << std::endl;
 		switch (key) {
 			case GLUT_KEY_UP:
 				if (menuItemHover > 1) {
@@ -467,6 +465,12 @@ void gamePlayKeyEventsCallback(int key, int x, int y) {
 		switch (key) {
 			case GLUT_KEY_UP:
 				isScored = plane.move(false, true, 'u');
+				if (isScored == 1) {
+					for (int i = 0; i < 4; i++) {
+						helicopters[i].generateHelicopter();
+						helicopters[i].increaseSpeed(plane.score / 10);
+					}
+				}
 				glutPostRedisplay();
 				break;
 			case GLUT_KEY_DOWN:
@@ -486,13 +490,6 @@ void gamePlayKeyEventsCallback(int key, int x, int y) {
 					plane.health = 3;
 				}
 				break;
-		}
-
-		if (isScored == 1) {
-			for (int i = 0; i < 4; i++) {
-				helicopters[i].generateHelicopter();
-				helicopters[i].increaseSpeed(plane.score / 10);
-			}
 		}
 	}
 	else if (menuStatus == 2) {
